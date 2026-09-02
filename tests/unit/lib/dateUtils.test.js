@@ -24,6 +24,30 @@ describe('parseDate', () => {
   it('returns null for a non-string, non-Date value', () => {
     expect(parseDate(12345)).toBeNull();
   });
+
+  it('rejects a calendar-impossible date instead of silently rolling it over', () => {
+    // JS's Date constructor normalizes Feb 30 -> Mar 2 rather than rejecting it.
+    expect(parseDate('2003-02-30')).toBeNull();
+  });
+
+  it('rejects Feb 29 in a non-leap year instead of silently rolling it over to Mar 1', () => {
+    expect(parseDate('2001-02-29')).toBeNull();
+  });
+
+  it('accepts Feb 29 in an actual leap year', () => {
+    const result = parseDate('2000-02-29');
+    expect(result).toBeInstanceOf(Date);
+    expect(result.getUTCMonth()).toBe(1);
+    expect(result.getUTCDate()).toBe(29);
+  });
+
+  it('rejects a non-ISO-format date string, even one Date can otherwise parse', () => {
+    expect(parseDate('05/15/2003')).toBeNull();
+  });
+
+  it('rejects an out-of-range month/day that Date itself refuses to parse', () => {
+    expect(parseDate('2003-13-45')).toBeNull();
+  });
 });
 
 describe('calculateAge', () => {
