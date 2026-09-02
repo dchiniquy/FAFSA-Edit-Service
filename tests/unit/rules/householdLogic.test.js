@@ -20,6 +20,11 @@ describe('household-logic rule', () => {
     expect(rule.validate(appWithHousehold(2, 2))).toEqual([]);
   });
 
+  it('applies and passes when both counts are exactly zero', () => {
+    expect(rule.appliesTo(appWithHousehold(0, 0))).toBe(true);
+    expect(rule.validate(appWithHousehold(0, 0))).toEqual([]);
+  });
+
   it('fails with COLLEGE_EXCEEDS_HOUSEHOLD when college count exceeds household count', () => {
     expect(rule.validate(appWithHousehold(2, 5))).toEqual([
       { code: 'COLLEGE_EXCEEDS_HOUSEHOLD', message: expect.any(String) },

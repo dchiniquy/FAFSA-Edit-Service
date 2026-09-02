@@ -67,6 +67,14 @@ describe('POST /api/v1/applications/validate', () => {
     );
   });
 
+  it('returns 200 and NEEDS_CORRECTION for a completely empty body (every field absent)', async () => {
+    const response = await request(app).post('/api/v1/applications/validate').send({});
+
+    expect(response.status).toBe(200);
+    expect(response.body.overallStatus).toBe('NEEDS_CORRECTION');
+    expect(response.body.summary.errors).toBe(0);
+  });
+
   it('returns 400 with details when the body is structurally malformed', async () => {
     const response = await request(app)
       .post('/api/v1/applications/validate')

@@ -24,4 +24,10 @@ describe('ssn-format rule', () => {
       { code: 'INVALID_SSN_FORMAT', message: expect.any(String) },
     ]);
   });
+
+  it('fails with INVALID_SSN_FORMAT for a dashed SSN, even though it is 9 digits', () => {
+    expect(rule.validate(appWithSsn('123-45-6789'))).toEqual([
+      { code: 'INVALID_SSN_FORMAT', message: expect.any(String) },
+    ]);
+  });
 });

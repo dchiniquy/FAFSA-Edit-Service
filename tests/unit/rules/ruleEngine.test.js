@@ -142,4 +142,25 @@ describe('ruleEngine.evaluate with the real registered rules', () => {
       ]),
     );
   });
+
+  it('marks a completely empty application as NEEDS_CORRECTION: every unconditional rule warns on a missing field, and every conditional rule is NOT_APPLICABLE because its trigger field is itself missing', () => {
+    const result = evaluate({}, { now });
+
+    const byRuleId = Object.fromEntries(result.ruleResults.map((r) => [r.ruleId, r]));
+
+    expect(byRuleId['student-age']).toMatchObject({ status: 'FAILED', code: 'MISSING_DOB' });
+    expect(byRuleId['ssn-format']).toMatchObject({ status: 'FAILED', code: 'MISSING_SSN' });
+    expect(byRuleId['income-validation']).toMatchObject({ status: 'PASSED' });
+    expect(byRuleId['state-code']).toMatchObject({ status: 'FAILED', code: 'MISSING_STATE' });
+
+    // Conditional rules never fire when their trigger field is missing, not even
+    // as a "missing trigger field" warning of their own - that gap belongs to
+    // dependencyStatus/maritalStatus validation, not to these rules.
+    expect(byRuleId['dependent-parent-income']).toMatchObject({ status: 'NOT_APPLICABLE' });
+    expect(byRuleId['household-logic']).toMatchObject({ status: 'NOT_APPLICABLE' });
+    expect(byRuleId['marital-status']).toMatchObject({ status: 'NOT_APPLICABLE' });
+
+    expect(result.summary).toEqual({ errors: 0, warnings: 3, passed: 1, notApplicable: 3 });
+    expect(result.overallStatus).toBe('NEEDS_CORRECTION');
+  });
 });
