@@ -1,112 +1,86 @@
 # Design Decisions
 
-Answers to the assignment's open questions, plus the assumptions made along the
-way. Each section leads with the decision, then why.
+Decision first, then why — answers to the assignment's open questions, plus
+the assumptions made along the way.
 
 ## Rule representation
 
-**Decision:** plain JS modules, one file per rule, each exporting
-`{ id, description, appliesTo(app), validate(app, { now }) }`, explicitly
+**Decision:** plain JS modules, one per rule
+(`{ id, description, appliesTo(app), validate(app, { now }) }`), explicitly
 registered in `src/rules/index.js`.
 
-**Why:** these rules have real conditional logic ("if married...", "if
-dependent..."), not just static thresholds. A JSON/YAML config would need its
-own mini-language for that logic, adding complexity a 7-rule set doesn't
-justify. Plain code stays simple, is trivially unit-testable, and is what a
-Java/Python-fluent reviewer can read without learning a DSL.
+**Why:** these rules branch on conditions ("if married...", "if
+dependent..."); a JSON/YAML config would need its own mini-language for that.
+Plain code is simpler, unit-testable, and needs no DSL to read.
 
-## Rule priority / order
+## Rule priority, order & conflicts
 
-**Decision:** rules run in the order listed in the assignment; order is
-cosmetic, not functional.
+**Decision:** rules run in the spec's order, but order is cosmetic — and
+conflicts can't happen by construction.
 
-**Why:** every rule is a pure function over one normalized application
-snapshot — none reads another rule's result, and none shares mutable state.
-Reordering `src/rules/index.js` only changes display order in the response,
-never the outcome.
+**Why:** every rule is a pure function over one normalized snapshot; none
+reads another's result or shares state. Reordering the registry only changes
+display order. (If a future rule set ever needed a tie-break, registry order
+is the fallback — unused today.)
 
 ## Error handling
 
 **Decision:** collect every violation in one pass; never stop at the first
 failure.
 
-**Why:** a caller correcting a FAFSA application needs the complete list of
-what's wrong in one round trip, not one error per HTTP request.
-
-## Rule conflicts
-
-**Decision:** not possible by construction — see rule independence above. If a
-future rule set ever needed a tie-break, registry order is the fallback (unused today).
+**Why:** a caller correcting an application needs the full list in one round
+trip, not one error per request.
 
 ## Severity levels
 
 **Decision:** severity is looked up per **issue code**, not fixed per rule —
-a single rule can fail for reasons of different severity (e.g. a missing
-date of birth vs. one that's in the future). The policy, applied uniformly:
+one rule can fail for reasons of different severity (e.g. missing DOB vs. one
+in the future).
 
-| Field category                                                                                   | Missing                               | Present but invalid |
-| ------------------------------------------------------------------------------------------------ | ------------------------------------- | ------------------- |
-| Required on every application (SSN, DOB, state)                                                  | WARNING                               | ERROR               |
-| Required by a condition that holds (parent income if dependent; spouse info if married)          | WARNING                               | ERROR               |
-| Comparison-only, not independently mandated (household counts; whichever income field is absent) | `NOT_APPLICABLE` (nothing to compare) | ERROR               |
+| Field category                                                                                   | Missing          | Present but invalid |
+| ------------------------------------------------------------------------------------------------ | ---------------- | ------------------- |
+| Required on every application (SSN, DOB, state)                                                  | WARNING          | ERROR               |
+| Required by a condition that holds (parent income if dependent; spouse info if married)          | WARNING          | ERROR               |
+| Comparison-only, not independently mandated (household counts; whichever income field is absent) | `NOT_APPLICABLE` | ERROR               |
 
-The intuition: **missing data is incomplete and correctable**, so it's a
-warning. **Present-but-wrong data is a real violation**, so it's an error.
-Overall status is `REJECTED` (any error) / `NEEDS_CORRECTION` (warnings only)
-/ `VALID` (neither) — more useful to a caller than a plain valid/invalid flag.
+Missing data is incomplete and correctable; present-but-wrong data is a real
+violation. Overall status is `REJECTED` (any error) / `NEEDS_CORRECTION`
+(warnings only) / `VALID` (neither).
 
-## Performance / throughput
+## Performance
 
-**Decision:** stateless, synchronous, in-memory — no database, no I/O during
-evaluation.
+**Decision:** stateless, synchronous, in-memory — no database, no I/O.
 
-**Why:** each request is O(number of rules), independent of every other
-request. That makes horizontal scaling trivial (add replicas behind a load
-balancer, no shared state to coordinate) and makes a database unnecessary —
-the assignment only asks the service to accept data and return a result, not
-to persist anything.
+**Why:** each request is independent and O(rule count), so scaling is just
+adding replicas; the assignment never asks for persistence.
 
 ## Extensibility
 
-**Decision:** adding a rule means adding one file (`src/rules/<name>.rule.js`)
-and one line in `src/rules/index.js`. No auto-discovery magic.
+**Decision:** a new rule = one file + one line in `src/rules/index.js`. No
+auto-discovery.
 
-**Why:** explicit registration is one extra line of "cost" per rule, in
-exchange for a registry that's readable top-to-bottom and safe to reason
-about live (e.g. in an interview) — no surprises from files being picked up
-implicitly.
+**Why:** explicit registration keeps the rule set readable top-to-bottom and
+safe to reason about live.
 
 ## Assumptions and edge cases
 
-- **`dependencyStatus` / `maritalStatus` validity**: neither is one of the 7
-  named rules — they're only branched on. Zod rejects an invalid _enum value_
-  for either (400, since it breaks the premise of the rules that branch on
-  them), but their outright _absence_ isn't invented as an 8th rule.
-- **SSN format**: taken literally as "9 digits" — `^\d{9}$`, dashes rejected
-  rather than stripped. A JSON number is rejected at the schema layer (would
-  silently lose a leading zero).
-- **State codes**: the 50 states + DC. US territories (PR, GU, VI, etc.) are
-  excluded per the literal spec wording; kept as an isolated, easily-extended
-  constant (`src/rules/lib/usStates.js`) since that's the most likely thing
-  to change first.
-- **Household counts**: if either count is missing, `household-logic` is
-  `NOT_APPLICABLE` (nothing to compare) rather than a warning — unlike SSN/DOB
-  /state, no rule in the spec independently requires these counts to be
-  present. No scope expansion to also reject zero/negative counts; the spec
-  only bounds college count by household count.
-- **Income fields**: `income-validation` checks whichever of
-  `studentIncome`/`parentIncome` is present; a missing field is not a
-  violation of that rule (only `dependent-parent-income` mandates
-  `parentIncome`'s presence, and only when dependent). `0` is always treated
-  as present, never as "missing" (a truthiness check would wrongly treat a
-  $0 income as absent).
-- **Age**: computed against an injectable clock (defaults to `new Date()`),
-  never a hardcoded date, so boundary tests (exact birthday, leap-day DOB) are
-  deterministic rather than wall-clock-dependent.
+- `dependencyStatus`/`maritalStatus`: not rules themselves, only branched on.
+  An invalid enum value is a 400 (breaks the rules that depend on it);
+  outright absence isn't invented as an 8th rule.
+- SSN: literal "9 digits" (`^\d{9}$`) — dashes rejected, JSON numbers rejected
+  (would lose a leading zero).
+- State codes: 50 states + DC; territories excluded per the literal spec,
+  kept in an isolated constant.
+- Household counts: missing either → `NOT_APPLICABLE` (nothing to compare),
+  not a warning — no rule requires these independently. No scope creep to
+  reject zero/negative counts.
+- Income: only checks whichever field is present; `0` always counts as
+  present, never "missing."
+- Age: computed against an injectable clock, never a hardcoded date, so
+  boundary tests are deterministic.
 
 ## Time spent
 
-**TODO (fill in before submitting):** an honest estimate of total time spent,
-per the assignment's request. This was built with AI assistance (Claude
-Code) — say so, and note what you spent your own time on (reviewing,
-directing, deciding) versus what the tool executed.
+**TODO (fill in before submitting):** an honest estimate, per the
+assignment's request — built with AI assistance (Claude Code); note your own
+time (reviewing, directing, deciding) vs. what the tool executed.
