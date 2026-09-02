@@ -1,0 +1,52 @@
+{
+  "name": "fafsa-edit-service",
+  "version": "1.0.0",
+  "description": "FAFSA Edit Rule Processor - validates FAFSA application data against configured edit rules",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20 <21"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "npm run lint && npm run format:check && npm run test:coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dchiniquy/FAFSA-Edit-Service.git"
+  },
+  "keywords": [
+    "fafsa",
+    "validation",
+    "edit-rules"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dchiniquy/FAFSA-Edit-Service/issues"
+  },
+  "homepage": "https://github.com/dchiniquy/FAFSA-Edit-Service#readme",
+  "dependencies": {
+    "express": "^4.22.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jest": "^29.16.6",
+    "globals": "^17.12.0",
+    "jest": "^30.5.1",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.9.6",
+    "supertest": "^7.2.2"
+  }
+}

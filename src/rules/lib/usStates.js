@@ -1,0 +1,62 @@
+// 50 states + DC, per the literal "state code must be a valid US state abbreviation"
+// requirement. US territories (PR, GU, VI, AS, MP) are deliberately excluded here —
+// see DECISIONS.md. Kept as an isolated constant so that choice is easy to revisit.
+const VALID_STATE_CODES = new Set([
+  'AL',
+  'AK',
+  'AZ',
+  'AR',
+  'CA',
+  'CO',
+  'CT',
+  'DE',
+  'FL',
+  'GA',
+  'HI',
+  'ID',
+  'IL',
+  'IN',
+  'IA',
+  'KS',
+  'KY',
+  'LA',
+  'ME',
+  'MD',
+  'MA',
+  'MI',
+  'MN',
+  'MS',
+  'MO',
+  'MT',
+  'NE',
+  'NV',
+  'NH',
+  'NJ',
+  'NM',
+  'NY',
+  'NC',
+  'ND',
+  'OH',
+  'OK',
+  'OR',
+  'PA',
+  'RI',
+  'SC',
+  'SD',
+  'TN',
+  'TX',
+  'UT',
+  'VT',
+  'VA',
+  'WA',
+  'WV',
+  'WI',
+  'WY',
+  'DC',
+]);
+
+function isValidStateCode(value) {
+  return typeof value === 'string' && VALID_STATE_CODES.has(value.toUpperCase());
+}
+
+module.exports = { isValidStateCode, VALID_STATE_CODES };
