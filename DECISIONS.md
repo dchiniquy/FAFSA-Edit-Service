@@ -81,13 +81,4 @@ safe to reason about live.
 
 ## Time spent
 
-I spent a lot of time upfront designing and organizing exactly how I want the
-end result to look. This included the language I wanted to use, the use
-building of everything into a self contained Dockerfile. I brought in all
-the things I felt were most important to show good judgement, such as
-following a tdd approach to coding where tests don't become an afterthought.
-I then organized all these priorities into multiple "agents" with claude. I
-ran a planning session first. Made many modifications to clarify. Then I
-implemented the plan. It took about 40 minutes to actually write the code. I
-spent a good half the time go over everything that was built and making
-small tweaks where needed.
+I spent the first 30 minutes going over exactly how I wanted the project to look. I broke down what language I wanted to use, testing method, ensuring I had a dockerfile and was able to test / run the service locally. I went over the requirements, listing what I thought was most important to focus on. Then I built an advanced prompt with Claude and started a planning session. Inside the planning session I made sure everything looked architecturally correct and lined up with the requirements I was given. Then I fanned out specialized agents for testing, platform design, and security to check the work my main agent did during planning. Then I let Claude build out the actual source code, which took about 45 minutes between the coding and reviews. Then I spent the rest of the time reviewing manually what was built and making sure it lived up to what I had in mind. I made many small tweaks along the way. In total it took just under 2 hours. 
