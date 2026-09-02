@@ -106,4 +106,7 @@ implicitly.
 
 ## Time spent
 
-Documented honestly in the PR/submission notes.
+**TODO (fill in before submitting):** an honest estimate of total time spent,
+per the assignment's request. This was built with AI assistance (Claude
+Code) — say so, and note what you spent your own time on (reviewing,
+directing, deciding) versus what the tool executed.

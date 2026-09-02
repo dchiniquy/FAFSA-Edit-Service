@@ -247,4 +247,4 @@ intentionally open questions.
 
 ## Time spent
 
-Documented in the PR/submission notes for this take-home (not duplicated here).
+See the note at the end of [DECISIONS.md](./DECISIONS.md).
