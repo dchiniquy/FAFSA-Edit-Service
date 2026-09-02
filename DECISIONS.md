@@ -81,6 +81,13 @@ safe to reason about live.
 
 ## Time spent
 
-**TODO (fill in before submitting):** an honest estimate, per the
-assignment's request — built with AI assistance (Claude Code); note your own
-time (reviewing, directing, deciding) vs. what the tool executed.
+I spent a lot of time upfront designing and organizing exactly how I want the
+end result to look. This included the language I wanted to use, the use
+building of everything into a self contained Dockerfile. I brought in all
+the things I felt were most important to show good judgement, such as
+following a tdd approach to coding where tests don't become an afterthought.
+I then organized all these priorities into multiple "agents" with claude. I
+ran a planning session first. Made many modifications to clarify. Then I
+implemented the plan. It took about 40 minutes to actually write the code. I
+spent a good half the time go over everything that was built and making
+small tweaks where needed.
