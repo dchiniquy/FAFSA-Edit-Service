@@ -9,3 +9,10 @@ tests
 !.env.example
 *.md
 .eslintcache
+.vscode
+.idea
+.github
+*.log
+Dockerfile
+docker-compose.yml
+.dockerignore
