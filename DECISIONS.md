@@ -35,9 +35,8 @@ what's wrong in one round trip, not one error per HTTP request.
 
 ## Rule conflicts
 
-**Decision:** not possible by construction, given the independence described
-above (no shared state, no rule reads another's result). If a future rule
-set ever needed a tie-break, registry order is the documented fallback — unused today.
+**Decision:** not possible by construction — see rule independence above. If a
+future rule set ever needed a tie-break, registry order is the fallback (unused today).
 
 ## Severity levels
 

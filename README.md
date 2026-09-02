@@ -29,11 +29,11 @@ Or without live reload: `npm start`. Override the port with `PORT=4000 npm start
 ## Testing
 
 ```bash
-npm test              # run the full suite once
-npm run test:watch    # watch mode
-npm run test:coverage # coverage report (thresholds: 95% on src/rules, 85% overall)
+npm test               # run the full suite once
+npm run test:watch     # watch mode
+npm run test:coverage  # coverage report (thresholds: 95% on src/rules, 85% overall)
 npm run lint           # ESLint
-npm run format          # Prettier --write
+npm run format         # Prettier --write
 ```
 
 The suite includes unit tests for every rule and shared helper, plus integration
@@ -184,7 +184,9 @@ invalid enum values).
 
 (`descriptions` omitted above for brevity — every entry in the real response
 includes one. `overallStatus` is `VALID` / `NEEDS_CORRECTION` (warnings only,
-no errors) / `REJECTED` (any error) — see [DECISIONS.md](./DECISIONS.md) for why.)
+no errors) / `REJECTED` (any error) — see [DECISIONS.md](./DECISIONS.md) for why.
+`summary` tallies result entries, not rules — one rule can produce more than one,
+e.g. `marital-status` above, so counts can exceed the 7 registered rules.)
 
 **Response `400`** (structurally malformed body, e.g. `household` sent as a string):
 
@@ -194,6 +196,9 @@ no errors) / `REJECTED` (any error) — see [DECISIONS.md](./DECISIONS.md) for w
   "details": [{ "path": "household", "message": "Expected object, received string" }]
 }
 ```
+
+(Unparseable JSON, e.g. a trailing comma, fails before schema validation and returns
+`{ "error": "Malformed JSON body", "details": [] }` instead.)
 
 ### `GET /health`
 
@@ -242,4 +247,4 @@ intentionally open questions.
 
 ## Time spent
 
-See the note at the end of [DECISIONS.md](./DECISIONS.md).
+Documented in the PR/submission notes for this take-home (not duplicated here).
