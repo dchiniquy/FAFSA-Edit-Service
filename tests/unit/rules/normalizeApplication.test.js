@@ -28,6 +28,15 @@ describe('normalizeApplication', () => {
     expect(result.stateOfResidence).toBeUndefined();
   });
 
+  it('trims whitespace from spouse info fields when present', () => {
+    const result = normalizeApplication({
+      spouseInfo: { name: '  John Smith  ', ssn: ' 987654321 ' },
+    });
+
+    expect(result.spouseInfo.name).toBe('John Smith');
+    expect(result.spouseInfo.ssn).toBe('987654321');
+  });
+
   it('leaves numeric fields untouched, including zero', () => {
     const result = normalizeApplication({
       household: { numberInHousehold: 4, numberInCollege: 0 },

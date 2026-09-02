@@ -13,7 +13,10 @@ module.exports = {
     const issues = [];
 
     if (name == null) {
-      issues.push({ code: 'MISSING_SPOUSE_NAME', message: 'Spouse name is required when married.' });
+      issues.push({
+        code: 'MISSING_SPOUSE_NAME',
+        message: 'Spouse name is required when married.',
+      });
     }
 
     if (ssn == null) {

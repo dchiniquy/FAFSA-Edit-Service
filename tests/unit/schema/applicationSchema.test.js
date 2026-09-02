@@ -1,7 +1,7 @@
 const { applicationSchema } = require('../../../src/schema/applicationSchema');
 
 describe('applicationSchema', () => {
-  it('accepts the assignment\'s sample valid application', () => {
+  it("accepts the assignment's sample valid application", () => {
     const result = applicationSchema.safeParse({
       studentInfo: {
         firstName: 'Jane',
@@ -18,9 +18,14 @@ describe('applicationSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts the assignment\'s sample invalid application structurally (business rules, not schema, judge it)', () => {
+  it("accepts the assignment's sample invalid application structurally (business rules, not schema, judge it)", () => {
     const result = applicationSchema.safeParse({
-      studentInfo: { firstName: 'John', lastName: 'Doe', ssn: 'invalid', dateOfBirth: '2015-01-01' },
+      studentInfo: {
+        firstName: 'John',
+        lastName: 'Doe',
+        ssn: 'invalid',
+        dateOfBirth: '2015-01-01',
+      },
       dependencyStatus: 'dependent',
       maritalStatus: 'married',
       household: { numberInHousehold: 2, numberInCollege: 5 },

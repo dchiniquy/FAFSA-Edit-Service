@@ -127,9 +127,7 @@ describe('ruleEngine.evaluate with the real registered rules', () => {
     const result = evaluate(invalidApplication, { now });
 
     expect(result.overallStatus).toBe('REJECTED');
-    const failedCodes = result.ruleResults
-      .filter((r) => r.status === 'FAILED')
-      .map((r) => r.code);
+    const failedCodes = result.ruleResults.filter((r) => r.status === 'FAILED').map((r) => r.code);
 
     expect(failedCodes).toEqual(
       expect.arrayContaining([
